@@ -45,7 +45,7 @@ class isc
         try {
 	
             //* Set the function parameters.
-            $random_rs_id = 1;
+            $reseller = 0;
             $params = array(
 			'company_name' => $client_name,
 			'contact_name' => $client_name,
@@ -109,7 +109,7 @@ class isc
 			'created_at' => 0
 			);
 	
-            $affected_rows = $this->client->client_add($this->session_id, $random_rs_id, $params);
+            $affected_rows = $this->client->client_add($this->session_id, $reseller, $params);
 	
             echo "Created client: ".$client_name."\n";
             return $affected_rows;
