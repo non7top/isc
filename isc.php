@@ -28,6 +28,9 @@ class isc
         try {
             if($this->session_id = $this->client->login($username,$password)) {
                 echo 'Logged successfull. Session ID:'.$this->session_id."\n";
+            } else {
+                echo "Didn't answer when trying to login to SOAP URL\n";
+                die("Please ensure that PHP module php-soap is installed on server\n");
             }
         } catch (SoapFault $e) {
             echo $this->client->__getLastResponse();
@@ -36,7 +39,7 @@ class isc
     }
     
     public function rand_passwd(){
-        return substr(str_shuffle('abcdefghijklmnopqrs@#$%^<>&tuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') , 0 , 10 );
+        return substr(str_shuffle('abcdefghijklmno.,!.2..3.~=+pqrs@#$%^<>&tuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') , 0 , 10 );
     }
 
 
@@ -45,7 +48,7 @@ class isc
         try {
 	
             //* Set the function parameters.
-            $random_rs_id = 1;
+            #$random_rs_id = 1;
             $params = array(
 			'company_name' => $client_name,
 			'contact_name' => $client_name,
@@ -138,7 +141,7 @@ class isc
                         'errordocs' => 1,
                         'is_subdomainwww' => 1,
                         'subdomain' => 'www',
-                        'php' => 'fast-cgi',
+                        'php' => $this->php,
                         'ruby' => 'n',
                         'redirect_type' => '',
                         'redirect_path' => '',
@@ -265,7 +268,7 @@ class isc
     public function __destruct() {
         //var_dump($this->client->logout($this->session_id));
         if($this->client->logout($this->session_id)) {
-            echo 'Logged out.\n';
+            echo "Logged out.\n";
         }
     }
 
@@ -302,9 +305,14 @@ if ($act_type == "site_wizard" && $act == "add") {
         echo "SITENAME should consist of a-z0-9_ and be no more then 15 characters\n";
         die("Usage: script site_wizard add SITENAME\n");
     }
-    list($url, $username, $password ) = explode('|', getServerConfig($server));
+    $config = explode('|', getServerConfig($server));
+    $url=$config[0];
+    $username=$config[1];
+    $password=$config[2];
+    $php=$config[3]?:'fast-cgi';
 
     $isc=new isc($server, $url, $username, $password);
+    $isc->php=$php;
     $isc->client_id = $isc->add_client($client_name);
     $new_domain=$isc->add_web_domain($client_name);
     $new_ftpuser=$isc->add_ftp_user($new_domain, $client_name);
